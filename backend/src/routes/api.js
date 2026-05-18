@@ -1,6 +1,13 @@
 import express from "express";
 import { register, login, getProfile } from "../controllers/auth.controller";
-import { getHomepageProducts, getProducts, getProductBySlug } from "../controllers/product.controller";
+import {
+  getHomepageProducts,
+  getProducts,
+  getProductBySlug,
+  getProductsByCategory,
+  getBestSellers,
+  getMostViewed,
+} from "../controllers/product.controller";
 import { getCategories } from "../controllers/category.controller";
 import { protect } from "../middleware/auth.middleware";
 
@@ -13,6 +20,9 @@ router.get("/auth/profile", protect, getProfile);
 
 // Products
 router.get("/products/home", getHomepageProducts);
+router.get("/products/category/:categorySlug", getProductsByCategory);
+router.get("/products/top/bestsellers", getBestSellers);
+router.get("/products/top/mostviewed", getMostViewed);
 router.get("/products", getProducts);
 router.get("/products/:slug", getProductBySlug);
 

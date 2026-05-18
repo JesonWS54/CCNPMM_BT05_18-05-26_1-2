@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { getProductsApi } from "../../api/api";
+import { getProductsApi, getCategoriesApi } from "../../api/api";
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -10,8 +10,11 @@ export default function Header() {
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loadingSuggest, setLoadingSuggest] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const debounceRef = useRef(null);
   const wrapperRef = useRef(null);
+  const categoryRef = useRef(null);
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -19,9 +22,19 @@ export default function Header() {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
+      if (categoryRef.current && !categoryRef.current.contains(e.target)) {
+        setShowCategoryMenu(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Load categories
+  useEffect(() => {
+    getCategoriesApi()
+      .then((res) => setCategories(res.data))
+      .catch(() => setCategories([]));
   }, []);
 
   // Live search với debounce 350ms
@@ -109,10 +122,14 @@ export default function Header() {
               ) : (
                 <>
                   {suggestions.map((product) => {
-                    const price = product.salePrice > 0 ? product.salePrice : product.price;
-                    const discount = product.salePrice > 0
-                      ? Math.round((1 - product.salePrice / product.price) * 100)
-                      : 0;
+                    const price =
+                      product.salePrice > 0 ? product.salePrice : product.price;
+                    const discount =
+                      product.salePrice > 0
+                        ? Math.round(
+                            (1 - product.salePrice / product.price) * 100,
+                          )
+                        : 0;
                     return (
                       <button
                         key={product._id}
@@ -128,7 +145,9 @@ export default function Header() {
                           <p className="text-sm text-gray-800 font-medium truncate">
                             {product.name}
                           </p>
-                          <p className="text-xs text-gray-400">{product.category?.name}</p>
+                          <p className="text-xs text-gray-400">
+                            {product.category?.name}
+                          </p>
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-sm font-bold text-orange-500">
@@ -156,9 +175,50 @@ export default function Header() {
         </div>
 
         <nav className="flex items-center gap-3 text-sm whitespace-nowrap">
-          <Link to="/search" className="hover:text-orange-200 transition hidden sm:block">
+          <Link
+            to="/search"
+            className="hover:text-orange-200 transition hidden sm:block"
+          >
             Sản phẩm
           </Link>
+
+          {/* Categories Dropdown */}
+          <div ref={categoryRef} className="relative group hidden md:block">
+            <button
+              onClick={() => setShowCategoryMenu(!showCategoryMenu)}
+              className="hover:text-orange-200 transition py-3 flex items-center gap-1"
+            >
+              Danh mục <span className="text-xs">▼</span>
+            </button>
+            {showCategoryMenu && (
+              <div className="absolute right-0 top-full mt-0 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden min-w-48 z-40">
+                {categories.length === 0 ? (
+                  <div className="px-4 py-2 text-gray-500 text-sm">
+                    Đang tải...
+                  </div>
+                ) : (
+                  categories.map((cat) => (
+                    <Link
+                      key={cat._id}
+                      to={`/category/${cat.slug}`}
+                      onClick={() => setShowCategoryMenu(false)}
+                      className="block px-4 py-2.5 hover:bg-orange-50 transition text-sm"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <Link
+            to="/top-products"
+            className="hover:text-orange-200 transition hidden sm:block"
+          >
+            Sản phẩm Nổi Bật
+          </Link>
+
           {user ? (
             <>
               <span className="hidden md:block">👤 {user.name}</span>

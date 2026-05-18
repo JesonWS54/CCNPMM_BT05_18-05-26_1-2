@@ -6,7 +6,12 @@ import ProductCard from "../components/product/ProductCard";
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [data, setData] = useState({ featured: [], newest: [], bestSellers: [], onSale: [] });
+  const [data, setData] = useState({
+    featured: [],
+    newest: [],
+    bestSellers: [],
+    onSale: [],
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,6 +57,12 @@ export default function HomePage() {
               className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition"
             >
               Xem Bán Chạy
+            </Link>
+            <Link
+              to="/top-products"
+              className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition"
+            >
+              Sản Phẩm Nổi Bật
             </Link>
           </div>
         </div>
