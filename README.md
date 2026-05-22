@@ -6,6 +6,8 @@
 
 **Cơ sở dữ liệu:** MongoDB
 
+**Github nhóm:** https://github.com/DangTranAnhQuan/hcmute-student-consulting.git
+
 ---
 
 ## ✨ Tính Năng Mới
